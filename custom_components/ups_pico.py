@@ -9,7 +9,6 @@ import logging
 
 # import voluptuous as vol
 
-from homeassistant.components.switch import SwitchDevice
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.event import async_track_time_interval
@@ -19,8 +18,8 @@ REQUIREMENTS = ['smbus2==0.2.0']
 _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = 'ups_pico'
-ENTITY_ID_FORMAT = DOMAIN + '.{}'
-SWITCH_ENTITY_ID_FORMAT = 'switch.' + DOMAIN + '_{}'
+SENSOR_ID_FORMAT = DOMAIN + '.{}'
+SWITCH_NAME_FORMAT = DOMAIN + ' {}'
 
 SENSOR_TYPES = {
     'voltBat': ['BAT Voltage', 'V', 'battery'],
@@ -41,7 +40,6 @@ def async_setup(hass, config):
     """Set up the UPS PIco component."""
     component = EntityComponent(_LOGGER, DOMAIN, hass)
     entities = []
-    ups_pico = UpsPico()
     ups_pico.get_data()
 
     for object_id, cfg in SENSOR_TYPES.items():
@@ -50,12 +48,6 @@ def async_setup(hass, config):
         icon = 'mdi:' + cfg[2]
 
         entities.append(UpsPicoSensor(ups_pico, object_id, name, unit, icon))
-
-    for object_id, cfg in SWITCH_TYPES.items():
-        name = cfg[0]
-        icon = 'mdi:' + cfg[1]
-
-        entities.append(UpsPicoSwitch(ups_pico, object_id, name, icon))
 
     if not entities:
         return False
@@ -73,10 +65,10 @@ class UpsPicoSensor(Entity):
     def __init__(self, ups_pico, object_id, name, unit, icon):
         """Initialize the sensor."""
         self.ups_pico = ups_pico
-        self.entity_id = ENTITY_ID_FORMAT.format(object_id)
+        self.entity_id = SENSOR_ID_FORMAT.format(object_id)
         self._object_id = object_id
         self._name = name
-        self._state = None
+        self._state = self.ups_pico.pico_data[self._object_id] or None
         self._unit_of_measurement = unit
         self._icon = icon
 
@@ -120,55 +112,6 @@ class UpsPicoSensor(Entity):
 
     def update(self):
         """Update sensor state."""
-        self._state = self.ups_pico.pico_data[self._object_id]
-
-
-class UpsPicoSwitch(SwitchDevice):
-    """Representation of UPS PIco switch."""
-
-    def __init__(self, ups_pico, object_id, name, icon):
-        """Initialize the switch."""
-        self.ups_pico = ups_pico
-        self.entity_id = SWITCH_ENTITY_ID_FORMAT.format(object_id)
-        self._object_id = object_id
-        self._name = name
-        self._state = None
-        self._icon = icon
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def is_on(self):
-        """Return true if device is on."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon to be used for this entity."""
-        return self._icon
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return True
-
-    def turn_on(self, **kwargs):
-        """Turn the device on."""
-        self.ups_pico.led_on(self._object_id)
-        self._state = True
-        self.schedule_update_ha_state()
-
-    def turn_off(self, **kwargs):
-        """Turn the device off."""
-        self.ups_pico.led_off(self._object_id)
-        self._state = False
-        self.schedule_update_ha_state()
-
-    def update(self):
-        """Update switch state."""
         self._state = self.ups_pico.pico_data[self._object_id]
 
 
@@ -218,6 +161,8 @@ class UpsPico(object):
             reg = self.reg_dict[device]
             try:
                 self.i2c.write_byte_data(addr, reg, data)
+                self.pico_data[device] = data
+                _LOGGER.debug("Setting i2c addr %s %s to %s", addr, reg, data)
                 return True
             except Exception as exc:
                 _LOGGER.error('Except class PicoPlugin setData(): %s',
@@ -230,10 +175,12 @@ class UpsPico(object):
 
     def led_on(self, device):
         """Turn LED on."""
+        _LOGGER.debug("Turning device %s ON", device)
         return self.set_data(device, 1)
 
     def led_off(self, device):
         """Turn LED off."""
+        _LOGGER.debug("Turning device %s OFF", device)
         return self.set_data(device, 0)
 
     def get_data(self):
@@ -304,3 +251,6 @@ class UpsPico(object):
         self.pico_data["ledEnable"] = data[0x15]
 
         return True
+
+
+ups_pico = UpsPico()
