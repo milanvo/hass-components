@@ -52,7 +52,7 @@ def async_setup(hass, config):
         unit = cfg[1]
         icon = 'mdi:' + cfg[2]
 
-        entities.append(UpsPicoSensor(UPS_DATA, object_id, name, unit, icon))
+        entities.append(UpsPicoSensor(object_id, name, unit, icon))
 
     if not entities:
         return False
@@ -67,9 +67,9 @@ def async_setup(hass, config):
 class UpsPicoSensor(Entity):
     """Representation of UPS PIco sensor."""
 
-    def __init__(self, ups_pico, object_id, name, unit, icon):
+    def __init__(self, object_id, name, unit, icon):
         """Initialize the sensor."""
-        self.ups_pico = ups_pico
+        self.ups_pico = UPS_DATA
         self.entity_id = SENSOR_ID_FORMAT.format(object_id)
         self._object_id = object_id
         self._name = name
