@@ -10,7 +10,7 @@ import logging
 # import voluptuous as vol
 
 from homeassistant.components.switch import SwitchDevice
-from custom_components.ups_pico import (ups_pico, SWITCH_TYPES,
+from custom_components.ups_pico import (UPS_DATA, SWITCH_TYPES,
                                         SWITCH_NAME_FORMAT)
 
 DEPENDENCIES = ['ups_pico']
@@ -22,13 +22,12 @@ _LOGGER = logging.getLogger(__name__)
 def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     """Set up the UPS PIco platform."""
     entities = []
-    # ups_pico = UpsPico()
 
     for object_id, cfg in SWITCH_TYPES.items():
         name = cfg[0]
         icon = 'mdi:' + cfg[1]
 
-        entities.append(UpsPicoSwitch(ups_pico, object_id, name, icon))
+        entities.append(UpsPicoSwitch(UPS_DATA, object_id, name, icon))
 
     if not entities:
         return False

@@ -34,25 +34,30 @@ SWITCH_TYPES = {
     'ledEnable': ['Enabled LEDs', 'led-off']
 }
 
+UPS_DATA = None
+
 
 @asyncio.coroutine
 def async_setup(hass, config):
     """Set up the UPS PIco component."""
     component = EntityComponent(_LOGGER, DOMAIN, hass)
     entities = []
-    ups_pico.get_data()
+
+    global UPS_DATA
+    UPS_DATA = UpsPico()
+    UPS_DATA.get_data()
 
     for object_id, cfg in SENSOR_TYPES.items():
         name = cfg[0]
         unit = cfg[1]
         icon = 'mdi:' + cfg[2]
 
-        entities.append(UpsPicoSensor(ups_pico, object_id, name, unit, icon))
+        entities.append(UpsPicoSensor(UPS_DATA, object_id, name, unit, icon))
 
     if not entities:
         return False
 
-    async_track_time_interval(hass, ups_pico.async_update,
+    async_track_time_interval(hass, UPS_DATA.async_update,
                               component.scan_interval)
 
     yield from component.async_add_entities(entities)
@@ -251,6 +256,3 @@ class UpsPico(object):
         self.pico_data["ledEnable"] = data[0x15]
 
         return True
-
-
-ups_pico = UpsPico()
