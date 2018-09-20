@@ -1,6 +1,17 @@
 # hass-components
 Home Assistant custom components
 
+## rflink2
+RFLink custom component allowing to use second RFLink module
+
+### Installation
+* download or clone repository files
+* add to `configuration.yaml`:
+    ```
+    rflink2:
+      port: /dev/ttyACM0
+    ```
+
 ## ups_pico
 ### Requirements
 * **smbus2** v0.2.0 Python package - should be installed automatically by HA
