@@ -22,16 +22,16 @@ SENSOR_ID_FORMAT = DOMAIN + '.{}'
 SWITCH_NAME_FORMAT = DOMAIN + ' {}'
 
 SENSOR_TYPES = {
-    'voltBat': ['BAT Voltage', 'V', 'battery'],
-    'voltRpi': ['RPi Voltage', 'V', 'power-plug'],
-    'tempNtc1': ['NTC1 Temperature', '°C', 'thermometer'],
-    'pwrMode': ['Powering Mode', None, 'power'],
+    'volt_bat': ['BAT Voltage', 'V', 'battery'],
+    'volt_rpi': ['RPi Voltage', 'V', 'power-plug'],
+    'temp_ntc1': ['NTC1 Temperature', '°C', 'thermometer'],
+    'pwr_mode': ['Powering Mode', None, 'power'],
 }
 SWITCH_TYPES = {
-    'ledOrange': ['Orange LED', 'led-off'],
-    'ledGreen': ['Green LED', 'led-off'],
-    'ledBlue': ['Blue LED', 'led-off'],
-    'ledEnable': ['Enabled LEDs', 'led-off']
+    'led_orange': ['Orange LED', 'led-off'],
+    'led_green': ['Green LED', 'led-off'],
+    'led_blue': ['Blue LED', 'led-off'],
+    'led_enable': ['Enabled LEDs', 'led-off']
 }
 
 UPS_DATA = None
@@ -105,12 +105,12 @@ class UpsPicoSensor(Entity):
     @property
     def state_attributes(self):
         """Return the state attributes of the UPS."""
-        if self._object_id == 'pwrMode':
+        if self._object_id == 'pwr_mode':
             attrs = {
-                'pwrRunTime': self.ups_pico.pico_data['pwrRunTime'],
-                'verPCB': self.ups_pico.pico_data['verPCB'],
-                'verBoot': self.ups_pico.pico_data['verBoot'],
-                'verFW': self.ups_pico.pico_data['verFW'],
+                'pwr_runtime': self.ups_pico.pico_data['pwr_runtime'],
+                'ver_pcb': self.ups_pico.pico_data['ver_pcb'],
+                'ver_boot': self.ups_pico.pico_data['ver_boot'],
+                'ver_fw': self.ups_pico.pico_data['ver_fw'],
             }
             return attrs
         return None
@@ -131,10 +131,10 @@ class UpsPico(object):
         self.pico_data = dict()
         self.i2c = smbus2.SMBus(1)
         self.reg_dict = {
-            "ledOrange": 0x09,
-            "ledGreen": 0x0a,
-            "ledBlue": 0x0b,
-            "ledEnable": 0x15,
+            "led_orange": 0x09,
+            "led_green": 0x0a,
+            "led_blue": 0x0b,
+            "led_enable": 0x15,
         }
         return
 
@@ -201,41 +201,41 @@ class UpsPico(object):
         # 0x69 0x00 Powering mode
         reg_word = data[0x00]
         if reg_word == 1:
-            self.pico_data["pwrMode"] = "RPi powered"
+            self.pico_data["pwr_mode"] = "RPi powered"
         elif reg_word == 2:
-            self.pico_data["pwrMode"] = "UPS powered"
+            self.pico_data["pwr_mode"] = "UPS powered"
 
         # 0x69 0x08 BAT voltage
         reg_word = int.from_bytes(data[0x08:0x0a], byteorder="little")
         reg_hex = format(reg_word, "02x")
         reg_volt = float(reg_hex) / 100
-        self.pico_data["voltBat"] = reg_volt
+        self.pico_data["volt_bat"] = reg_volt
 
         # 0x69 0x0a RPi voltage
         reg_word = int.from_bytes(data[0x0a:0x0c], byteorder="little")
         reg_hex = format(reg_word, "02x")
         reg_volt = float(reg_hex) / 100
-        self.pico_data["voltRpi"] = reg_volt
+        self.pico_data["volt_rpi"] = reg_volt
 
         # 0x69 0x1b NTC1 temperature
         reg_word = data[0x1b]
         reg_hex = format(reg_word, "02x")
-        self.pico_data["tempNtc1"] = reg_hex
+        self.pico_data["temp_ntc1"] = reg_hex
 
         # 0x69 0x24 PCB version
         reg_word = data[0x24]
         reg_chr = chr(reg_word)
-        self.pico_data["verPCB"] = reg_chr
+        self.pico_data["ver_pcb"] = reg_chr
 
         # 0x69 0x25 Bootloader version
         reg_word = data[0x25]
         reg_chr = chr(reg_word)
-        self.pico_data["verBoot"] = reg_chr
+        self.pico_data["ver_boot"] = reg_chr
 
         # 0x69 0x26 FW version
         reg_word = data[0x26]
         reg_hex = format(reg_word, "02x")
-        self.pico_data["verFW"] = reg_hex
+        self.pico_data["ver_fw"] = reg_hex
 
         # *** 0x6b registers
         data = self.pico_reg[0x6b]
@@ -243,16 +243,16 @@ class UpsPico(object):
         # 0x6b 0x01 Bat Powering time
         reg_word = data[0x01]
         if reg_word == 0xff:
-            self.pico_data["pwrRunTime"] = "disabled"
+            self.pico_data["pwr_runtime"] = "disabled"
         else:
-            self.pico_data["pwrRunTime"] = 1 + reg_word
+            self.pico_data["pwr_runtime"] = 1 + reg_word
 
         # 0x6b 0x09, 0x0a, 0x0b User LEDs Orange, Green, Blue
-        self.pico_data["ledOrange"] = data[0x09]
-        self.pico_data["ledGreen"] = data[0x0a]
-        self.pico_data["ledBlue"] = data[0x0b]
+        self.pico_data["led_orange"] = data[0x09]
+        self.pico_data["led_green"] = data[0x0a]
+        self.pico_data["led_blue"] = data[0x0b]
 
         # 0x6b 0x15 Enable LEDs
-        self.pico_data["ledEnable"] = data[0x15]
+        self.pico_data["led_enable"] = data[0x15]
 
         return True
