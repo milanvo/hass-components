@@ -13,6 +13,7 @@ RFLink custom component allowing to use second RFLink module
     ```
 
 ## ups_pico
+Custom component for UPS PIco from PiModules
 ### Requirements
 * **smbus2** v0.2.0 Python package - should be installed automatically by HA
 
@@ -38,10 +39,10 @@ RFLink custom component allowing to use second RFLink module
 * restart Home Assistant
 * you should see entities for sensors and switches like:
     ````
-    ups_pico.pwrmode
-    ups_pico.voltrpi
-    ups_pico.voltbat
-    ups_pico.tempntc1
+    ups_pico.pwr_mode
+    ups_pico.volt_rpi
+    ups_pico.volt_bat
+    ups_pico.temp_ntc1
     switch.ups_pico_enabled_leds
     switch.ups_pico_blue_led
     switch.ups_pico_green_led
