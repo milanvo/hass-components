@@ -1,3 +1,9 @@
+:exclamation: Home Assistant 0.88 components directory structure change :exclamation:
+
+**ups_pico** already updated https://github.com/milanvo/hass-components/issues/3
+
+More info: https://developers.home-assistant.io/blog/2019/02/19/the-great-migration.html
+
 # hass-components
 Home Assistant custom components
 
@@ -25,9 +31,9 @@ Custom component for UPS PIco from PiModules
         ├── configuration.yaml
         │   (... and the other current files)
         └── custom_components
-            ├── switch
-            │   └── ups_pico.py
-            └── ups_pico.py
+            └── ups_pico
+                ├── __init__.py
+                └── switch.py
     ```
 * add to `configuration.yaml`:
     ````
