@@ -1,0 +1,10 @@
+{
+  "domain": "ups_pico",
+  "name": "UPS PIco",
+  "documentation": "https://pimodules.com",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": ["smbus2"],
+  "version": "0.1",
+  "iot_class": "local_polling"
+}

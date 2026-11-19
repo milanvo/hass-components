@@ -4,12 +4,12 @@ UPS PIco switch platform.
 For more details about this component, please refer to the documentation
 at https://home-assistant.io/components/
 """
-import asyncio
+#import asyncio
 import logging
 
 # import voluptuous as vol
 
-from homeassistant.components.switch import SwitchDevice
+from homeassistant.components.switch import SwitchEntity
 from custom_components import ups_pico
 
 DEPENDENCIES = ['ups_pico']
@@ -17,8 +17,7 @@ DEPENDENCIES = ['ups_pico']
 _LOGGER = logging.getLogger(__name__)
 
 
-@asyncio.coroutine
-def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
+def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the UPS PIco platform."""
     entities = []
 
@@ -31,11 +30,11 @@ def async_setup_platform(hass, config, async_add_devices, discovery_info=None):
     if not entities:
         return False
 
-    async_add_devices(entities)
+    add_devices(entities)
     return True
 
 
-class UpsPicoSwitch(SwitchDevice):
+class UpsPicoSwitch(SwitchEntity):
     """Representation of UPS PIco switch."""
 
     def __init__(self, object_id, name, icon):

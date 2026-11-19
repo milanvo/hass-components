@@ -4,14 +4,15 @@ Component to interface with UPS PIco (by Pimodules).
 For more details about this component, please refer to the documentation
 at https://home-assistant.io/components/
 """
-import asyncio
+# NO ASYNC import asyncio
 import logging
 
 # import voluptuous as vol
 
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_component import EntityComponent
-from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.helpers.event import track_time_interval
+# NO ASYNC from homeassistant.helpers.event import async_track_time_interval
 
 REQUIREMENTS = ['smbus2==0.2.0']
 
@@ -37,8 +38,8 @@ SWITCH_TYPES = {
 UPS_DATA = None
 
 
-@asyncio.coroutine
-def async_setup(hass, config):
+# NO ASYNC async def async_setup(hass, config):
+def setup(hass, config):
     """Set up the UPS PIco component."""
     component = EntityComponent(_LOGGER, DOMAIN, hass)
     entities = []
@@ -57,10 +58,12 @@ def async_setup(hass, config):
     if not entities:
         return False
 
-    async_track_time_interval(hass, UPS_DATA.async_update,
+    # NO ASYNC async_track_time_interval(hass, UPS_DATA.async_update,
+    track_time_interval(hass, UPS_DATA.update,
                               component.scan_interval)
 
-    yield from component.async_add_entities(entities)
+    # yield from component.async_add_entities(entities)
+    component.add_entities(entities)
     return True
 
 
@@ -138,8 +141,7 @@ class UpsPico(object):
         }
         return
 
-    @asyncio.coroutine
-    def async_update(self, *_):
+    def update(self, *_):
         """Async update latest data."""
         self.get_data()
 
@@ -199,10 +201,12 @@ class UpsPico(object):
         data = self.pico_reg[0x69]
 
         # 0x69 0x00 Powering mode
-        reg_word = data[0x00]
+        #reg_word = data[0x00]
+        reg_word = data[0x00] & 0x01
         if reg_word == 1:
             self.pico_data["pwr_mode"] = "RPi powered"
-        elif reg_word == 2:
+        #elif reg_word == 2:
+        elif reg_word == 0:
             self.pico_data["pwr_mode"] = "UPS powered"
 
         # 0x69 0x08 BAT voltage
