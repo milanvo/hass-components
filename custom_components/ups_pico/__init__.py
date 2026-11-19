@@ -14,9 +14,9 @@ from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.event import track_time_interval
 # NO ASYNC from homeassistant.helpers.event import async_track_time_interval
 
-from homeassistant.components.sensor import (               
-    SensorDeviceClass,                                            
-    SensorStateClass,                                             
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorStateClass,
 )
 from homeassistant.const import UnitOfTemperature
 
