@@ -9,10 +9,16 @@ import logging
 
 # import voluptuous as vol
 
-from homeassistant.helpers.entity import Entity
+#from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.event import track_time_interval
 # NO ASYNC from homeassistant.helpers.event import async_track_time_interval
+
+from homeassistant.components.sensor import (               
+    SensorDeviceClass,                                            
+    SensorStateClass,                                             
+)
+from homeassistant.const import UnitOfTemperature
 
 REQUIREMENTS = ['smbus2==0.2.0']
 
@@ -20,13 +26,14 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = 'ups_pico'
 SENSOR_ID_FORMAT = DOMAIN + '.{}'
+SENSOR_NAME_FORMAT = DOMAIN + ' {}'
 SWITCH_NAME_FORMAT = DOMAIN + ' {}'
 
 SENSOR_TYPES = {
-    'volt_bat': ['BAT Voltage', 'V', 'battery'],
-    'volt_rpi': ['RPi Voltage', 'V', 'power-plug'],
-    'temp_ntc1': ['NTC1 Temperature', '°C', 'thermometer'],
-    'pwr_mode': ['Powering Mode', None, 'power'],
+    'volt_bat': ['BAT Voltage', 'V', 'battery', SensorDeviceClass.VOLTAGE],
+    'volt_rpi': ['RPi Voltage', 'V', 'power-plug', SensorDeviceClass.VOLTAGE],
+    'temp_ntc1': ['NTC1 Temperature', UnitOfTemperature.CELSIUS, 'thermometer', SensorDeviceClass.TEMPERATURE],
+    'pwr_mode': ['Powering Mode', None, 'power', None],
 }
 SWITCH_TYPES = {
     'led_orange': ['Orange LED', 'led-off'],
@@ -48,79 +55,24 @@ def setup(hass, config):
     UPS_DATA = UpsPico()
     UPS_DATA.get_data()
 
-    for object_id, cfg in SENSOR_TYPES.items():
-        name = cfg[0]
-        unit = cfg[1]
-        icon = 'mdi:' + cfg[2]
+    #for object_id, cfg in SENSOR_TYPES.items():
+    #    name = cfg[0]
+    #    unit = cfg[1]
+    #    icon = 'mdi:' + cfg[2]
+    #    devClass = cfg[3]
 
-        entities.append(UpsPicoSensor(object_id, name, unit, icon))
+    #    entities.append(UpsPicoSensor(object_id, name, unit, icon, devClass))
 
-    if not entities:
-        return False
+    #if not entities:
+    #    return False
 
     # NO ASYNC async_track_time_interval(hass, UPS_DATA.async_update,
     track_time_interval(hass, UPS_DATA.update,
                               component.scan_interval)
 
     # yield from component.async_add_entities(entities)
-    component.add_entities(entities)
+    #component.add_entities(entities)
     return True
-
-
-class UpsPicoSensor(Entity):
-    """Representation of UPS PIco sensor."""
-
-    def __init__(self, object_id, name, unit, icon):
-        """Initialize the sensor."""
-        self.ups_pico = UPS_DATA
-        self.entity_id = SENSOR_ID_FORMAT.format(object_id)
-        self._object_id = object_id
-        self._name = name
-        self._state = self.ups_pico.pico_data[self._object_id] or None
-        self._unit_of_measurement = unit
-        self._icon = icon
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
-
-    @property
-    def state(self):
-        """Return the state of the device."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self):
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
-
-    @property
-    def icon(self):
-        """Return the icon to be used for this entity."""
-        return self._icon
-
-    @property
-    def should_poll(self):
-        """No polling needed."""
-        return True
-
-    @property
-    def state_attributes(self):
-        """Return the state attributes of the UPS."""
-        if self._object_id == 'pwr_mode':
-            attrs = {
-                'pwr_runtime': self.ups_pico.pico_data['pwr_runtime'],
-                'ver_pcb': self.ups_pico.pico_data['ver_pcb'],
-                'ver_boot': self.ups_pico.pico_data['ver_boot'],
-                'ver_fw': self.ups_pico.pico_data['ver_fw'],
-            }
-            return attrs
-        return None
-
-    def update(self):
-        """Update sensor state."""
-        self._state = self.ups_pico.pico_data[self._object_id]
 
 
 class UpsPico(object):

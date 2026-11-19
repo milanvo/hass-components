@@ -1,3 +1,7 @@
+## 2016-11-19
+Rework **ups_pico** component for currency - separate sensor.py, hass SensorEntity Py class, rework entity attributes
+
+## 2019-02-22
 :exclamation: Home Assistant 0.88 components directory structure change :exclamation:
 
 **ups_pico** already updated https://github.com/milanvo/hass-components/issues/3
