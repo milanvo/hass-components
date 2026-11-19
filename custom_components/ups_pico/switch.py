@@ -41,24 +41,27 @@ class UpsPicoSwitch(SwitchEntity):
         """Initialize the switch."""
         self.ups_pico = ups_pico.UPS_DATA
         self._object_id = object_id
-        self._name = ups_pico.SWITCH_NAME_FORMAT.format(name)
+        #self._name = ups_pico.SWITCH_NAME_FORMAT.format(name)
+        self._attr_name = ups_pico.SWITCH_NAME_FORMAT.format(name)
         self._state = None
-        self._icon = icon
+        #self._icon = icon
+        self._attr_icon = icon
+        self._attr_unique_id = object_id
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
+    #@property
+    #def name(self):
+    #    """Return the name of the sensor."""
+    #    return self._name
 
     @property
     def is_on(self):
         """Return true if device is on."""
         return self._state
 
-    @property
-    def icon(self):
-        """Return the icon to be used for this entity."""
-        return self._icon
+    #@property
+    #def icon(self):
+    #    """Return the icon to be used for this entity."""
+    #    return self._icon
 
     @property
     def should_poll(self):
