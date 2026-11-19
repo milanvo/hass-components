@@ -1,4 +1,4 @@
-## 2016-11-19
+## 2026-11-19
 Rework **ups_pico** component for currency - separate sensor.py, hass SensorEntity Py class, rework entity attributes
 
 ## 2019-02-22
